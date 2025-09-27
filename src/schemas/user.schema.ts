@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { Store } from './store.schema';
 
 export type UserDocument = User & Document;
 
@@ -29,6 +30,9 @@ export class User {
 
   @Prop()
   address?: string;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Store' }] })
+  store: Store[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

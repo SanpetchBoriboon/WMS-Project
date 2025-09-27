@@ -20,7 +20,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
     let message = 'Internal server error';
     let details: any = null;
 
-    // ✅ กรณีเป็น HttpException (พวก BadRequest, NotFound ฯลฯ)
     if (exception instanceof HttpException) {
       code = exception.getStatus();
       const res = exception.getResponse();
@@ -31,17 +30,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
         message = r.message || message;
         details = r;
       }
-    }
-    // ✅ กรณีเป็น MongoDB Error (เช่น Duplicate Key)
-    else if (exception instanceof MongoError) {
+    } else if (exception instanceof MongoError) {
       if (exception.code === 11000) {
         code = HttpStatus.CONFLICT;
         message = 'Duplicate key error';
         details = (exception as any).keyValue ?? null;
       }
-    }
-    // ✅ Error ปกติ
-    else if (exception instanceof Error) {
+    } else if (exception instanceof Error) {
       message = exception.message;
       details = exception.stack;
     }
