@@ -16,7 +16,12 @@ export class ProductsService {
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
-  async create(createProductDto: CreateProductDto, userId: string) {
+
+  async create(
+    createProductDto: CreateProductDto,
+    userId: string,
+    storeId: string,
+  ) {
     const user = await this.userModel.findById(userId).exec();
     if (!user) {
       throw new HttpException('User is not registered', HttpStatus.BAD_REQUEST);
@@ -29,8 +34,16 @@ export class ProductsService {
     });
     await product.save();
 
+    await this.productModel.findByIdAndUpdate(
+      product._id,
+      {
+        $push: { store: storeId },
+      },
+      { new: true },
+    );
+
     await this.storeModel.findByIdAndUpdate(
-      createProductDto.storeId,
+      storeId,
       {
         $push: { products: product._id },
         $set: { updateAt: new Date() },
@@ -38,5 +51,16 @@ export class ProductsService {
       { new: true },
     );
     return product;
+  }
+
+  async getAllProduct(storeId: string): Promise<any> {
+    const store = await this.storeModel.findById(storeId);
+    if (!store) {
+      throw new HttpException('Store is not create', HttpStatus.BAD_REQUEST);
+    }
+
+    const products = store.populate('products');
+
+    return products;
   }
 }

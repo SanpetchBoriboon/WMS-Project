@@ -11,7 +11,4 @@ export class CreateProductDto {
 
   @IsNumber()
   price: string;
-
-  @IsString()
-  storeId: string;
 }

@@ -16,10 +16,10 @@ export class Store {
   @Prop()
   tel?: string;
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }] })
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
   owners: User[];
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'Product' }] })
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Product' }], default: [] })
   products: Product[];
 }
 

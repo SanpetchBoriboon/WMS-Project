@@ -21,7 +21,7 @@ export class Product {
   @Prop()
   updateBy: string;
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'Store' }] })
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Store' }], default: [] })
   store: Store[];
 }
 
