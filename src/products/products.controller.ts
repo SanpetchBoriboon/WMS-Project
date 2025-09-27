@@ -1,11 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-
 import {
   Controller,
   Post,
   Body,
   UseGuards,
-  Req,
   Get,
   Param,
   Patch,
@@ -14,7 +11,8 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { JwtUser } from 'src/auth/types/jwt-user.type';
+import type { JwtUser } from 'src/auth/types/jwt-user.type';
+import { CurrentUser } from 'currentUser';
 
 @Controller('stores/:storeId/products')
 @UseGuards(JwtAuthGuard)
@@ -25,9 +23,9 @@ export class ProductsController {
   create(
     @Param('storeId') storeId: string,
     @Body() createProductDto: CreateProductDto,
-    @Req() req: any,
+    @CurrentUser() user: JwtUser,
   ) {
-    const userId = (req.user as JwtUser).userId;
+    const userId = user.userId;
     return this.productsService.create(createProductDto, userId, storeId);
   }
 
@@ -41,9 +39,9 @@ export class ProductsController {
     @Param('storeId') storeId: string,
     @Param('productId') productId: string,
     @Body() updateProductDto: UpdateProductDto,
-    @Req() req: any,
+    @CurrentUser() user: JwtUser,
   ) {
-    const userId = (req.user as JwtUser).userId;
+    const userId = user.userId;
     return this.productsService.updateProduct(
       userId,
       storeId,
