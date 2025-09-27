@@ -1,7 +1,13 @@
-import { IsString, IsNumber } from 'class-validator';
+import { IsString, IsNumber, IsEnum } from 'class-validator';
+
+export enum TransactionType {
+  IN = 'IN',
+  OUT = 'OUT',
+  NEW = 'NEW',
+}
 
 export class CreateTransactionDto {
-  @IsString()
+  @IsEnum(TransactionType, { message: 'type must be IN, OUT or NEW' })
   type: string;
 
   @IsNumber()

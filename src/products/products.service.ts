@@ -9,6 +9,7 @@ import { User, UserDocument } from '../schemas/user.schema';
 
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { TransactionsService } from '../transactions/transactions.service';
+import { UpdateTransactionDto } from 'src/transactions/dto/update-transaction';
 
 @Injectable()
 export class ProductsService {
@@ -89,5 +90,43 @@ export class ProductsService {
       { ...dto, updateBy: userId, updateAt: new Date() },
       { new: true },
     );
+  }
+
+  async updateStock(
+    userId: string,
+    storeId: string,
+    productId: string,
+    dto: UpdateTransactionDto,
+  ) {
+    if (dto.quantity && dto.type) {
+      if (dto.type === 'NEW') {
+        throw new HttpException('Type cannot be NEW', HttpStatus.BAD_REQUEST);
+      }
+      const incValue = dto.type === 'OUT' ? -dto.quantity : dto.quantity;
+      const message = dto.type === 'OUT' ? 'Decrease' : 'Increase';
+
+      const product = await this.productModel.findByIdAndUpdate(
+        { _id: productId, store: storeId },
+        {
+          $inc: { stock: incValue },
+          $set: {
+            updateBy: userId,
+            updateDate: new Date(),
+          },
+        },
+        { new: true },
+      );
+
+      await this.transactionService.createTransaction(
+        {
+          type: dto.type || '',
+          quantity: dto.quantity,
+          note: `${product?.productName} product is ${message}`,
+        },
+        productId,
+      );
+    }
+
+    return { msg: 'sucess' };
   }
 }

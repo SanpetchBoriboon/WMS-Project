@@ -13,6 +13,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { JwtUser } from 'src/auth/types/jwt-user.type';
 import { CurrentUser } from 'currentUser';
+import { UpdateTransactionDto } from 'src/transactions/dto/update-transaction';
 
 @Controller('stores/:storeId/products')
 @UseGuards(JwtAuthGuard)
@@ -48,5 +49,20 @@ export class ProductsController {
       productId,
       updateProductDto,
     );
+  }
+
+  @Patch(':productId/product-stock')
+  updateStock(
+    @Param('storeId') storeId: string,
+    @Param('productId') productId: string,
+    @Body() dto: UpdateTransactionDto,
+    @CurrentUser() user: JwtUser,
+  ) {
+    const userId = user.userId;
+    const { type, quantity } = dto;
+    return this.productsService.updateStock(userId, storeId, productId, {
+      type,
+      quantity,
+    });
   }
 }
