@@ -7,6 +7,7 @@ import { UserSchema } from './schemas/user.schema';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { StoresModule } from './stores/stores.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { StoresModule } from './stores/stores.module';
     UsersModule,
     AuthModule,
     StoresModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

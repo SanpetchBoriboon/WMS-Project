@@ -15,8 +15,6 @@ export class StoresService {
   ) {}
 
   async createStore(createStoreDto: CreateStoreDto, userId: string) {
-    console.log(userId);
-    // 1) สร้างร้านใหม่
     const store = new this.storeModel(createStoreDto);
     await store.save();
 
