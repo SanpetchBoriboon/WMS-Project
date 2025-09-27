@@ -8,6 +8,10 @@ import { Product, ProductDocument } from '../schemas/product.schema';
 import { User, UserDocument } from '../schemas/user.schema';
 
 import { HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Transaction,
+  TransactionDocument,
+} from 'src/schemas/transaction.schema';
 
 @Injectable()
 export class ProductsService {
@@ -15,6 +19,8 @@ export class ProductsService {
     @InjectModel(Store.name) private storeModel: Model<StoreDocument>,
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Transaction.name)
+    private transactionModel: Model<TransactionDocument>,
   ) {}
 
   async create(
