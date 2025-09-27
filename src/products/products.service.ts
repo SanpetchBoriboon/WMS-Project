@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
-// import { UpdateProductDto } from './dto/update-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Store, StoreDocument } from '../schemas/store.schema';
@@ -62,5 +62,18 @@ export class ProductsService {
     const products = store.populate('products');
 
     return products;
+  }
+
+  async updateProduct(
+    userId: string,
+    storeId: string,
+    productId: string,
+    dto: UpdateProductDto,
+  ) {
+    return this.productModel.findByIdAndUpdate(
+      { _id: productId, store: storeId },
+      { ...dto, updateBy: userId, updateAt: new Date() },
+      { new: true },
+    );
   }
 }
