@@ -9,14 +9,24 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Store, StoreSchema } from '../schemas/store.schema';
 import { User, UserSchema } from 'src/schemas/user.schema';
 import { Product, ProductSchema } from 'src/schemas/product.schema';
+import { Transaction, TransactionSchema } from 'src/schemas/transaction.schema';
+import { TransactionsService } from 'src/transactions/transactions.service';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Store.name, schema: StoreSchema }]),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
+    MongooseModule.forFeature([
+      { name: Transaction.name, schema: TransactionSchema },
+    ]),
   ],
-  providers: [UsersService, ProductsService, StoresService],
+  providers: [
+    UsersService,
+    ProductsService,
+    StoresService,
+    TransactionsService,
+  ],
   controllers: [UsersController, ProductsController, StoresController],
   exports: [UsersService, ProductsService, StoresService, MongooseModule], // << สำคัญ
 })

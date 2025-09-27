@@ -8,10 +8,7 @@ import { Product, ProductDocument } from '../schemas/product.schema';
 import { User, UserDocument } from '../schemas/user.schema';
 
 import { HttpException, HttpStatus } from '@nestjs/common';
-import {
-  Transaction,
-  TransactionDocument,
-} from 'src/schemas/transaction.schema';
+import { TransactionsService } from '../transactions/transactions.service';
 
 @Injectable()
 export class ProductsService {
@@ -19,8 +16,7 @@ export class ProductsService {
     @InjectModel(Store.name) private storeModel: Model<StoreDocument>,
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    @InjectModel(Transaction.name)
-    private transactionModel: Model<TransactionDocument>,
+    private readonly transactionService: TransactionsService,
   ) {}
 
   async create(
@@ -40,8 +36,10 @@ export class ProductsService {
     });
     await product.save();
 
+    const productId = String(product._id);
+
     await this.productModel.findByIdAndUpdate(
-      product._id,
+      productId,
       {
         $push: { store: storeId },
       },
@@ -51,11 +49,21 @@ export class ProductsService {
     await this.storeModel.findByIdAndUpdate(
       storeId,
       {
-        $push: { products: product._id },
+        $push: { products: productId },
         $set: { updateAt: new Date() },
       },
       { new: true },
     );
+
+    await this.transactionService.createTransaction(
+      {
+        type: 'NEW',
+        quantity: createProductDto.stock,
+        note: `Create product ${product.productName}`,
+      },
+      productId,
+    );
+
     return product;
   }
 

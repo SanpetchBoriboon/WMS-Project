@@ -7,7 +7,7 @@ export class CreateProductDto {
   productName: string;
 
   @IsNumber()
-  stock: string;
+  stock: number;
 
   @IsNumber()
   price: string;

@@ -12,6 +12,9 @@ export class Transaction {
   @Prop()
   note?: string;
 
+  @Prop()
+  quantity: string;
+
   @Prop({ type: Types.ObjectId, ref: 'Product' })
   product: Product;
 }

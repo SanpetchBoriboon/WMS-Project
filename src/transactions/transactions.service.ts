@@ -5,7 +5,7 @@ import {
   Transaction,
   TransactionDocument,
 } from 'src/schemas/transaction.schema';
-import { CreateStoreDto } from 'src/stores/dto/create-store.dto';
+import { CreateTransactionDto } from 'src/transactions/dto/create-transaction';
 
 @Injectable()
 export class TransactionsService {
@@ -14,12 +14,15 @@ export class TransactionsService {
     private transactionModel: Model<TransactionDocument>,
   ) {}
 
-  async createStore(createStoreDto: CreateStoreDto, productId: string) {
+  async createTransaction(
+    createStoreDto: CreateTransactionDto,
+    productId: string,
+  ) {
     const transaction = new this.transactionModel(createStoreDto);
     await transaction.save();
 
     await this.transactionModel.findByIdAndUpdate(transaction._id, {
-      $push: { product: productId },
+      product: productId,
     });
 
     return transaction;
