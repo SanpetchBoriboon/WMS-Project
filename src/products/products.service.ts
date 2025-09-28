@@ -26,11 +26,6 @@ export class ProductsService {
     userId: string,
     storeId: string,
   ) {
-    const user = await this.userModel.findById(userId).exec();
-    if (!user) {
-      throw new HttpException('User is not registered', HttpStatus.BAD_REQUEST);
-    }
-
     const product = new this.productModel({
       ...createProductDto,
       createBy: userId,

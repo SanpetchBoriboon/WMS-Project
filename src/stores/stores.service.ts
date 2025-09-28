@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateStoreDto } from './dto/create-store.dto';
 // import { UpdateStoreDto } from './dto/update-store.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -15,6 +15,17 @@ export class StoresService {
   ) {}
 
   async createStore(createStoreDto: CreateStoreDto, userId: string) {
+    const duplicate = await this.storeModel.findOne({
+      storeName: createStoreDto.storeName,
+      owners: userId,
+    });
+
+    if (duplicate) {
+      throw new HttpException(
+        { code: 400, message: 'User already has a store with this name' },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const store = new this.storeModel(createStoreDto);
     await store.save();
 

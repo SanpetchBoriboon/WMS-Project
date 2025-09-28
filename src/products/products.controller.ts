@@ -11,12 +11,13 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import type { JwtUser } from 'src/auth/types/jwt-user.type';
-import { CurrentUser } from 'currentUser';
-import { UpdateTransactionDto } from 'src/transactions/dto/update-transaction';
+import type { JwtUser } from '../auth/types/jwt-user.type';
+import { CurrentUser } from '../common/currentUser';
+import { UpdateTransactionDto } from '../transactions/dto/update-transaction';
+import { ValidateIdGuard } from '../common/validate-id.guard';
 
 @Controller('stores/:storeId/products')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ValidateIdGuard)
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 

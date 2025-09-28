@@ -10,6 +10,7 @@ import { StoresModule } from './stores/stores.module';
 import { ProductsModule } from './products/products.module';
 import { TransactionsService } from './transactions/transactions.service';
 import { TransactionsModule } from './transactions/transactions.module';
+import { ValidateIdGuard } from './common/validate-id.guard';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { TransactionsModule } from './transactions/transactions.module';
     TransactionsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, TransactionsService],
+  providers: [AppService, TransactionsService, ValidateIdGuard],
+  exports: [ValidateIdGuard],
 })
 export class AppModule {}
