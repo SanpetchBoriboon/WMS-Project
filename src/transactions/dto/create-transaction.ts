@@ -8,7 +8,7 @@ export enum TransactionType {
 
 export class CreateTransactionDto {
   @IsEnum(TransactionType, { message: 'type must be IN, OUT or NEW' })
-  type: string;
+  type: TransactionType;
 
   @IsNumber()
   quantity: number;

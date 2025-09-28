@@ -9,7 +9,8 @@ import { User, UserDocument } from '../schemas/user.schema';
 
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { TransactionsService } from '../transactions/transactions.service';
-import { UpdateTransactionDto } from 'src/transactions/dto/update-transaction';
+import { UpdateTransactionDto } from '../transactions/dto/update-transaction';
+import { TransactionType } from '../transactions/dto/create-transaction';
 
 @Injectable()
 export class ProductsService {
@@ -58,7 +59,7 @@ export class ProductsService {
 
     await this.transactionService.createTransaction(
       {
-        type: 'NEW',
+        type: TransactionType.NEW,
         quantity: createProductDto.stock,
         note: `Create product ${product.productName}`,
       },
@@ -71,7 +72,7 @@ export class ProductsService {
   async getAllProduct(storeId: string): Promise<any> {
     const store = await this.storeModel.findById(storeId);
     if (!store) {
-      throw new HttpException('Store is not create', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Store does not exist', HttpStatus.BAD_REQUEST);
     }
 
     const products = store.populate('products');
@@ -85,11 +86,17 @@ export class ProductsService {
     productId: string,
     dto: UpdateProductDto,
   ) {
-    return this.productModel.findByIdAndUpdate(
+    const updatedProduct = await this.productModel.findByIdAndUpdate(
       { _id: productId, store: storeId },
       { ...dto, updateBy: userId, updateAt: new Date() },
       { new: true },
     );
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: `${updatedProduct?.productName} update successfully`,
+      data: { updatedProduct },
+    };
   }
 
   async updateStock(
@@ -98,35 +105,46 @@ export class ProductsService {
     productId: string,
     dto: UpdateTransactionDto,
   ) {
-    if (dto.quantity && dto.type) {
-      if (dto.type === 'NEW') {
-        throw new HttpException('Type cannot be NEW', HttpStatus.BAD_REQUEST);
-      }
-      const incValue = dto.type === 'OUT' ? -dto.quantity : dto.quantity;
-      const message = dto.type === 'OUT' ? 'Decrease' : 'Increase';
-
-      const product = await this.productModel.findByIdAndUpdate(
-        { _id: productId, store: storeId },
-        {
-          $inc: { stock: incValue },
-          $set: {
-            updateBy: userId,
-            updateDate: new Date(),
-          },
-        },
-        { new: true },
-      );
-
-      await this.transactionService.createTransaction(
-        {
-          type: dto.type || '',
-          quantity: dto.quantity,
-          note: `${product?.productName} product is ${message}`,
-        },
-        productId,
+    if (!dto.quantity || !dto.type) {
+      throw new HttpException(
+        'Quantity and type are required',
+        HttpStatus.BAD_REQUEST,
       );
     }
 
-    return { msg: 'sucess' };
+    if (dto.type === TransactionType.NEW) {
+      throw new HttpException('Type cannot be NEW', HttpStatus.BAD_REQUEST);
+    }
+
+    const incValue =
+      dto.type === TransactionType.OUT ? -dto.quantity : dto.quantity;
+    const message = dto.type === TransactionType.OUT ? 'Decrease' : 'Increase';
+
+    const product = await this.productModel.findByIdAndUpdate(
+      { _id: productId, store: storeId },
+      {
+        $inc: { stock: incValue },
+        $set: {
+          updateBy: userId,
+          updateDate: new Date(),
+        },
+      },
+      { new: true },
+    );
+
+    const updateTransaction = await this.transactionService.createTransaction(
+      {
+        type: dto.type || '',
+        quantity: dto.quantity,
+        note: `${product?.productName} product is ${message}`,
+      },
+      productId,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: `${message} stock successfully`,
+      data: { product, updateTransaction },
+    };
   }
 }
