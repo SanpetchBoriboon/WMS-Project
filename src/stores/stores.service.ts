@@ -39,4 +39,9 @@ export class StoresService {
 
     return store;
   }
+
+  async getStore(userId: string) {
+    const stores = await this.storeModel.findOne({ owners: userId });
+    return stores;
+  }
 }

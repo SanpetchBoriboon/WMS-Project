@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get } from '@nestjs/common';
 import { StoresService } from './stores.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 // import { UpdateStoreDto } from './dto/update-store.dto';
@@ -16,5 +16,11 @@ export class StoresController {
   create(@Body() createShopDto: CreateStoreDto, @CurrentUser() user: JwtUser) {
     const userId = user.userId;
     return this.storesService.createStore(createShopDto, userId);
+  }
+
+  @Get()
+  getAll(@CurrentUser() user: JwtUser) {
+    const userId = user.userId;
+    return this.storesService.getStore(userId);
   }
 }

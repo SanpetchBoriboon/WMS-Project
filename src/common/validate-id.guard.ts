@@ -24,27 +24,21 @@ export class ValidateIdGuard implements CanActivate {
     const { storeId } = request.params;
     const userId = request.user?.userId; // มาจาก JwtAuthGuard
 
-    if (!userId) {
-      throw new HttpException('userId is required', HttpStatus.UNAUTHORIZED);
+    if (userId) {
+      const user = await this.userModel.findById(userId).exec();
+      if (!user) {
+        throw new HttpException('User does not exist', HttpStatus.BAD_REQUEST);
+      }
+      request.userDoc = user;
     }
 
-    const user = await this.userModel.findById(userId).exec();
-    if (!user) {
-      throw new HttpException('User does not exist', HttpStatus.BAD_REQUEST);
+    if (storeId) {
+      const store = await this.storeModel.findById(storeId).exec();
+      if (!store) {
+        throw new HttpException('Store does not exist', HttpStatus.BAD_REQUEST);
+      }
+      request.storeDoc = store;
     }
-
-    if (!storeId) {
-      throw new HttpException('storeId is required', HttpStatus.BAD_REQUEST);
-    }
-
-    const store = await this.storeModel.findById(storeId).exec();
-    if (!store) {
-      throw new HttpException('Store does not exist', HttpStatus.BAD_REQUEST);
-    }
-
-    // ✅ inject object ลงใน request เพื่อใช้ต่อ
-    request.userDoc = user;
-    request.storeDoc = store;
 
     return true;
   }
