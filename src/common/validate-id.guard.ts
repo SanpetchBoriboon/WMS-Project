@@ -24,14 +24,17 @@ export class ValidateIdGuard implements CanActivate {
     const { storeId } = request.params;
     const userId = request.user?.userId; // มาจาก JwtAuthGuard
 
-    if (userId) {
-      const user = await this.userModel.findById(userId).exec();
-      if (!user) {
-        throw new HttpException('User does not exist', HttpStatus.BAD_REQUEST);
-      }
-      request.userDoc = user;
+    // ✅ userId ต้องมีเสมอ
+    if (!userId) {
+      throw new HttpException('userId is required', HttpStatus.UNAUTHORIZED);
     }
 
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
+      throw new HttpException('User does not exist', HttpStatus.BAD_REQUEST);
+    }
+
+    // ✅ storeId ไม่จำเป็นต้องมี
     if (storeId) {
       const store = await this.storeModel.findById(storeId).exec();
       if (!store) {
@@ -39,6 +42,9 @@ export class ValidateIdGuard implements CanActivate {
       }
       request.storeDoc = store;
     }
+
+    // inject user ลงใน request เสมอ
+    request.userDoc = user;
 
     return true;
   }
